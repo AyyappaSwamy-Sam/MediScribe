@@ -7,7 +7,7 @@ function Footer() {
   return (
   
 
-<footer className="border-t border-gray-200 py-8 md:py-12">
+<footer className="border-t mt-auto bottom-0 border-gray-200 py-8 md:py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
             <img src={assets.logo1} alt="Mediscribe Logo" className="h-8 mb-4" />

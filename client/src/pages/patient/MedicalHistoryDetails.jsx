@@ -95,8 +95,8 @@ const MedicalHistoryDetails = () => {
           </CardHeader>
           <CardContent>
             <audio controls className="w-full">
-              {/* {const fileUrl = `http://localhost:5000/home/subhash/Documents/MediScribe/Data/${audioFilePath}`;} */}
-              <source src={`http://localhost:5000/${historyDetails.audioFilePath}`} type="audio/mpeg" />
+              <source src={`http://localhost:5000/home/subhash/Documents/MediScribe/Data/${historyDetails.audioFilePath}`} type="audio/mpeg" /> 
+              {/* <source src={`http://localhost:5000/${historyDetails.audioFilePath}`} type="audio/mpeg" /> */}
               Your browser does not support the audio element.
             </audio>
           </CardContent>

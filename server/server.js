@@ -29,7 +29,8 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-app.use('/home/subhash/Documents/MediScribe/Data', express.static(path.join(__dirname, '../Data')));
+// app.use('/home/subhash/Documents/MediScribe/Data', express.static(path.join(__dirname, './Data')));
+
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

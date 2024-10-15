@@ -18,6 +18,7 @@ const MedicalHistoryDetails = () => {
       return;
     }
 
+    
     const fetchHistoryDetails = async () => {
       try {
         const response = await fetch(`http://localhost:5000/api/patient/medical-history/details/${id}`);

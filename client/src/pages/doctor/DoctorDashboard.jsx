@@ -6,6 +6,8 @@ import { Calendar, Clock, User, FileText, Calendar as CalendarIcon } from 'lucid
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
 
 const DoctorDashboard = () => {
   const navigate = useNavigate();
@@ -44,8 +46,8 @@ const DoctorDashboard = () => {
 
     fetchData();
     
-    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
-    return () => clearInterval(timer);
+    // const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    // return () => clearInterval(timer);
   }, [doctorId]);
 
   const handleStartAppointment = (appointmentId) => {
@@ -54,10 +56,21 @@ const DoctorDashboard = () => {
     }
   };
 
-  const handleCancelAppointment = async (appointmentId) => {
-    if (appointmentId) {
-      console.log('Cancelling appointment:', appointmentId);
-      navigate(`/doctor-page/appointments/cancel/${appointmentId}`);
+  const handleCancelAppointment = async (appointmentId, reason) => {
+    try {
+      console.log(reason);
+      await axios.post(`http://localhost:5000/api/doctor/UpdateData/${appointmentId}`, { reason });
+      // After successful cancellation, you might want to refresh the appointments list
+      // This could be done by calling the fetchData function again or updating the state directly
+      console.log('Appointment cancelled successfully');
+      // Optionally, you can update the UI to reflect the cancellation
+      // For example, removing the cancelled appointment from the list
+      setRecentAppointments(prevAppointments => 
+        prevAppointments.filter(app => app.appointmentId !== appointmentId)
+      );
+    } catch (error) {
+      console.error('Error cancelling appointment:', error);
+      // Handle error (e.g., show an error message to the user)
     }
   };
 
@@ -151,8 +164,142 @@ const StatCard = ({ title, value, icon }) => (
   </Card>
 );
 
+// const AppointmentCard = ({ appointment, onStart, onCancel }) => {
+//   if (!appointment) return null;
+
+//   return (
+//     <Card className="hover:shadow-lg transition-shadow">
+//       <CardContent className="flex items-center p-4">
+//         <Avatar className="h-12 w-12 mr-4">
+//           <AvatarImage src={appointment.photo} alt={appointment.patientName} />
+//           <AvatarFallback>{appointment.patientName?.charAt(0) || '?'}</AvatarFallback>
+//         </Avatar>
+//         <div className="flex-grow">
+//           <h3 className="font-semibold">{appointment.patientName}</h3>
+//           <p className="text-sm text-gray-500">{appointment.description || 'No description'}</p>
+//           <div className="flex items-center mt-2 text-sm text-gray-500">
+//             <Clock className="h-4 w-4 mr-1" />
+//             {appointment.time}
+//             <Calendar className="h-4 w-4 ml-3 mr-1" />
+//             {new Date(appointment.date).toLocaleDateString()}
+//           </div>
+//         </div>
+//         <div className="flex space-x-2">
+//           <Button onClick={onStart}>Start</Button>
+//           <Button variant="outline" onClick={onCancel}>Cancel</Button>
+//         </div>
+//       </CardContent>
+//     </Card>
+//   );
+// };
+
+
+// const AppointmentCard = ({ appointment, onStart, onCancel }) => {
+//   if (!appointment) return null;
+
+//   const isToday = (dateString) => {
+//     const today = new Date();
+//     const appointmentDate = new Date(dateString);
+//     return (
+//       today.getDate() === appointmentDate.getDate() &&
+//       today.getMonth() === appointmentDate.getMonth() &&
+//       today.getFullYear() === appointmentDate.getFullYear()
+//     );
+//   };
+
+//   const isPastDate = (dateString) => {
+//     const today = new Date();
+//     const appointmentDate = new Date(dateString);
+//     return appointmentDate < today;
+//   };
+
+//   const isFutureDate = (dateString) => {
+//     const today = new Date();
+//     const appointmentDate = new Date(dateString);
+//     return appointmentDate > today;
+//   };
+
+//   const startButtonDisabled = isPastDate(appointment.date) || isFutureDate(appointment.date);
+//   const cancelButtonDisabled = isPastDate(appointment.date);
+
+//   return (
+//     <Card className="hover:shadow-lg transition-shadow">
+//       <CardContent className="flex items-center p-4">
+//         <Avatar className="h-12 w-12 mr-4">
+//           <AvatarImage src={appointment.photo} alt={appointment.patientName} />
+//           <AvatarFallback>{appointment.patientName?.charAt(0) || '?'}</AvatarFallback>
+//         </Avatar>
+//         <div className="flex-grow">
+//           <h3 className="font-semibold">{appointment.patientName}</h3>
+//           <p className="text-sm text-gray-500">{appointment.description || 'No description'}</p>
+//           <div className="flex items-center mt-2 text-sm text-gray-500">
+//             <Clock className="h-4 w-4 mr-1" />
+//             {appointment.time}
+//             <Calendar className="h-4 w-4 ml-3 mr-1" />
+//             {new Date(appointment.date).toLocaleDateString()}
+//           </div>
+//         </div>
+//         <div className="flex space-x-2">
+//           <Button 
+//             onClick={onStart} 
+//             disabled={startButtonDisabled}
+//           >
+//             Start
+//           </Button>
+//           <Button 
+//             variant="outline" 
+//             onClick={onCancel} 
+//             disabled={cancelButtonDisabled}
+//           >
+//             Cancel
+//           </Button>
+//         </div>
+//       </CardContent>
+//     </Card>
+//   );
+// };
+
+
 const AppointmentCard = ({ appointment, onStart, onCancel }) => {
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [cancellationReason, setCancellationReason] = useState('');
+
   if (!appointment) return null;
+
+  const isToday = (dateString) => {
+    const today = new Date();
+    const appointmentDate = new Date(dateString);
+    return (
+      today.getDate() === appointmentDate.getDate() &&
+      today.getMonth() === appointmentDate.getMonth() &&
+      today.getFullYear() === appointmentDate.getFullYear()
+    );
+  };
+
+  const isPastDate = (dateString) => {
+    const today = new Date();
+    const appointmentDate = new Date(dateString);
+    return appointmentDate < today;
+  };
+
+  const isFutureDate = (dateString) => {
+    const today = new Date();
+    const appointmentDate = new Date(dateString);
+    return appointmentDate > today;
+  };
+
+  const startButtonDisabled = isPastDate(appointment.date) || isFutureDate(appointment.date);
+  const cancelButtonDisabled = isPastDate(appointment.date);
+
+  const handleCancelClick = () => {
+    setIsDialogOpen(true);
+  };
+
+  const handleConfirmCancel = () => {
+    onCancel(appointment.appointmentId, cancellationReason);
+    setIsDialogOpen(false);
+    setCancellationReason('');
+  };
 
   return (
     <Card className="hover:shadow-lg transition-shadow">
@@ -172,17 +319,52 @@ const AppointmentCard = ({ appointment, onStart, onCancel }) => {
           </div>
         </div>
         <div className="flex space-x-2">
-          <Button onClick={onStart}>Start</Button>
-          <Button variant="outline" onClick={onCancel}>Cancel</Button>
+          <Button 
+            onClick={onStart} 
+            disabled={startButtonDisabled}
+          >
+            Start
+          </Button>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button 
+                variant="outline"
+                onClick={handleCancelClick}
+                disabled={cancelButtonDisabled}
+              >
+                Cancel
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Cancel Appointment</DialogTitle>
+              </DialogHeader>
+              <p>Are you sure you want to cancel this appointment?</p>
+              <Textarea
+                placeholder="Reason for cancellation"
+                value={cancellationReason}
+                onChange={(e) => setCancellationReason(e.target.value)}
+              />
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+                  No, keep appointment
+                </Button>
+                <Button onClick={handleConfirmCancel}>
+                  Yes, cancel appointment
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </div>
       </CardContent>
     </Card>
   );
 };
 
+
 const NextAppointmentCard = ({ appointment, onClick }) => {
   if (!appointment) return null;
-
+  console.log('dff', appointment);
   return (
     <div className="cursor-pointer hover:shadow-lg transition-shadow" onClick={onClick}>
       <div className="flex items-center mb-4">

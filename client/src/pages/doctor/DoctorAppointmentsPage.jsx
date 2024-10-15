@@ -44,11 +44,12 @@ const DoctorAppointmentsPage = () => {
           <SelectValue placeholder="Select timeframe" />
         </SelectTrigger>
         <SelectContent>
+        <SelectItem value="all">Total Appointments</SelectItem>
           <SelectItem value="today">Today's Appointments</SelectItem>
           <SelectItem value="week">This Week</SelectItem>
           <SelectItem value="month">This Month</SelectItem>
           <SelectItem value="next-month">Next Month</SelectItem>
-          <SelectItem value="all">Total Appointments</SelectItem>
+          
         </SelectContent>
       </Select>
       <Table>

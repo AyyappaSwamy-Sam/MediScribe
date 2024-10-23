@@ -77,6 +77,7 @@ router.post('/auth/login', async (req, res) => {
     default:
       return res.status(400).json({ message: 'Invalid user type' });
   }
+  console.log('---')
   const user = await User.findOne({ email });
   console.log('hi',User, user);
   try {
@@ -87,6 +88,7 @@ router.post('/auth/login', async (req, res) => {
     console.log('email is matched')
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
+      console.log('nkfn')
       return res.status(401).json({ message: 'Invalid email or password' });
     }
     console.log('password is matched')

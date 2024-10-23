@@ -148,9 +148,9 @@ exports.getRecentAppointments = async (req, res) => {
   try {
     // concole.log('hi',req.body)
     const { doctorId } = req.query;
-    const appointments = await Appointment.find({ doctorId:doctorId, status:'scheduled' })
+    const appointments = await Appointment.find({ doctorId:doctorId })
       .sort({ date: -1, timeSlot: -1 })
-      .limit(4)
+      .limit(5)
 
     const formattedAppointments = await Promise.all(appointments.map(async (apt) => {
       const patient = await Patient.findById(apt.patientId);
@@ -162,8 +162,7 @@ exports.getRecentAppointments = async (req, res) => {
         photo: patient.photourl,
         description: apt.description,
         time: apt.timeSlot,
-        date: apt.date,
-        status: apt.status
+        date: apt.date
       };
     }));
 
@@ -193,8 +192,7 @@ exports.getTodayAppointments = async (req, res) => {
         photo: patient.photo,
         description: apt.description,
         time: apt.timeSlot,
-        date: apt.date,
-        status: apt.status
+        date: apt.date
       };
     }));
 
@@ -283,30 +281,5 @@ exports.getDoctorAppointments = async (req, res) => {
     res.json(formattedAppointments);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching appointments', error: error.message });
-  }
-};
-
-exports.updateAppointment = async (req, res) => {
-  try {
-    const { appointmentId } = req.params;
-    const { reason } = req.body;
-    console.log(req.body)
-
-    const appointment = await Appointment.findById(appointmentId);
-
-    if (!appointment) {
-      return res.status(200).json({ message: 'Appointment not found' });
-    }
-
-    appointment.status = 'cancelled';
-    appointment.description = appointment.description+ "\n Reason For cancellation: "+reason; // Using the description field to store the cancellation reason
-    appointment.booked = false;
-
-    await appointment.save();
-
-    res.status(200).json({ message: 'Appointment cancelled successfully', appointment });
-  } catch (error) {
-    console.error('Error updating appointment:', error);
-    res.status(500).json({ message: 'Internal server error' });
   }
 };

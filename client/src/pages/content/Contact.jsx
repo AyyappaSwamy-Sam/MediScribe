@@ -5,12 +5,11 @@ import { Input } from '../../components/ui/input';
 import { Textarea } from '../../components/ui/textarea';
 import { Button } from '../../components/ui/button';
 import { assets } from '../../assets/assets_frontend/assets';
+// import { FaFacebookF, FaInstagram, FaTwitter } from 'react-icons/fa';
 
 const Contact = () => {
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    phoneNumber: '',
+    fullName: '',
     email: '',
     message: '',
   });
@@ -29,9 +28,7 @@ const Contact = () => {
       await axios.post('/api/feedback', formData);
       setIsSubmitting(false);
       setFormData({
-        firstName: '',
-        lastName: '',
-        phoneNumber: '',
+        fullName: '',
         email: '',
         message: '',
       });
@@ -44,72 +41,53 @@ const Contact = () => {
   };
 
   return (
-    <div className="flex flex-col-reverse md:flex-row max-w-6xl mx-auto py-12">
-      <div className="md:w-1/2 flex items-center justify-center">
+    <div className="flex flex-col md:flex-row max-w-6xl mx-auto py-12 ">
+      <div className="md:w-1/2 p-8">
         <img
-          src={assets.bussiness3d1}
-          alt="Man standing"
-          width={200}
-          height={200}
-          className="object-contain"
+          src={assets.contactimg}
+          alt="Smartphone with business ideas"
+          className="w-full h-auto rounded-lg object-cover"
         />
       </div>
-      <div className="md:w-1/2 px-4">
-        <h1 className="text-2xl font-bold mb-4">Get in Touch</h1>
-        <form onSubmit={handleSubmit}>
-
-          <div className="mb-4">
-            <h3>First Name</h3>
+      <div className="md:w-1/2 p-8">
+        <h1 className="text-4xl font-serif text-[#1a2456] mb-8 underline">Contact Us</h1>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div>
+            <label className="text-sm text-gray-600">Full Name</label>
             <Input
-              label="First Name"
-              name="firstName"
-              value={formData.firstName}
+              name="fullName"
+              value={formData.fullName}
               onChange={handleInputChange}
               required
+              className="border-b border-gray-300 focus:border-[#1a2456] bg-transparent"
             />
           </div>
-          <div className="mb-4">
-          <h3>Last Name</h3>
+          <div>
+            <label className="text-sm text-gray-600">E-mail</label>
             <Input
-              label="Last Name"
-              name="lastName"
-              value={formData.lastName}
-              onChange={handleInputChange}
-              required
-            />
-          </div>
-          <div className="mb-4">
-          <h3>Phone Number</h3>
-            <Input
-              label="Phone Number"
-              name="phoneNumber"
-              value={formData.phoneNumber}
-              onChange={handleInputChange}
-              required
-            />
-          </div>
-          <div className="mb-4">
-          <h3>Email</h3>
-            <Input
-              label="Email"
               name="email"
               type="email"
               value={formData.email}
               onChange={handleInputChange}
               required
+              className="border-b border-gray-300 focus:border-[#1a2456] bg-transparent"
             />
           </div>
-          <div className="mb-4">
-          <h3>Message</h3>
+          <div>
+            <label className="text-sm text-gray-600">Message</label>
             <Textarea
-              label="Message"
               name="message"
               value={formData.message}
               onChange={handleInputChange}
               required
+              className="border-b border-gray-300 focus:border-[#1a2456] bg-transparent"
             />
           </div>
-          <Button type="submit" disabled={isSubmitting}>
+          <Button 
+            type="submit" 
+            disabled={isSubmitting}
+            className="bg-[#1a2456] text-white px-8 py-2 rounded-full hover:bg-[#2a3466] transition-colors"
+          >
             Submit
           </Button>
         </form>
@@ -117,7 +95,7 @@ const Contact = () => {
         {showSuccessAlert && (
           <Alert variant="success" className="mt-4">
             <AlertTitle>Success</AlertTitle>
-            <AlertDescription>Your feedback has been submitted successfully.</AlertDescription>
+            <AlertDescription>Your message has been sent successfully.</AlertDescription>
           </Alert>
         )}
 
@@ -125,10 +103,24 @@ const Contact = () => {
           <Alert variant="error" className="mt-4">
             <AlertTitle>Error</AlertTitle>
             <AlertDescription>
-              There was an error submitting your feedback. Please try again later.
+              There was an error sending your message. Please try again later.
             </AlertDescription>
           </Alert>
         )}
+
+        <div className="mt-12">
+          <h2 className="text-lg font-semibold text-[#1a2456] mb-2">Contact</h2>
+          <p className="text-gray-600">xxxxxxxxxx</p>
+          <h2 className="text-lg font-semibold text-[#1a2456] mt-4 mb-2">Email</h2>
+          <p className="text-gray-600">example@gmail.com</p>
+          <h2 className="text-lg font-semibold text-[#1a2456] mb-2">Location</h2>
+          <p className="text-gray-600">Kollam<br />Kerala - 690525</p>
+          {/* <div className="flex space-x-4 mt-6">
+            <a href="#" className="text-[#1a2456] hover:text-[#2a3466]"><FaFacebookF /></a>
+            <a href="#" className="text-[#1a2456] hover:text-[#2a3466]"><FaInstagram /></a>
+            <a href="#" className="text-[#1a2456] hover:text-[#2a3466]"><FaTwitter /></a>
+          </div> */}
+        </div>
       </div>
     </div>
   );

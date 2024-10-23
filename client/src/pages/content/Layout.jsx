@@ -4,9 +4,9 @@ import { Outlet } from 'react-router-dom'
 import Footer from './Footer'
 const Layout = () => {
   return (
-    <div className='overscroll-none'>
+    <div>
       <Navbar />
-      <div className='flex flex-col min-h-screen'>
+      <div>
         <Outlet />
       </div>
       <Footer />

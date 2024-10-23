@@ -18,6 +18,12 @@ import upload_icon from './upload_icon.png'
 import stripe_logo from './stripe_logo.png'
 import razorpay_logo from './razorpay_logo.png'
 import doctor1 from './doctor1.jpg'
+import img1 from './img1.jpg'
+import img2 from './img2.jpg'
+import img3 from './img3.jpg'
+import img4 from './img4.jpg'
+import img5 from './img5.jpg'
+import contactimg from './contact.png'
 import bussiness3d from './business-3d-young-man-standing-with-laptop.png'
 import bussiness3d1 from './3d-business-black-doctor-standing-with-clipboard-and-writing.png'
 import doc1 from './doc1.png'
@@ -44,7 +50,13 @@ import Pediatricians from './Pediatricians.svg'
 
 
 export const assets = {
+    contactimg,
     appointment_img,
+    img1,
+    img2,
+    img3,
+    img4,
+    img5,
     header_img,
     group_profiles,
     logo,
@@ -306,4 +318,6 @@ export const doctors = [
             line2: 'Circle, Ring Road, London'
         }
     },
+
+    
 ]

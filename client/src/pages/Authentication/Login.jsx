@@ -7,7 +7,8 @@ import { Label } from "@/components/ui/label";
 import { User, UserPlus, Stethoscope, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { useToast } from '@chakra-ui/react'
+import { useToast } from '@chakra-ui/react';
+import backgroundImage from '../../assets/assets_frontend/background.jpg';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -102,7 +103,7 @@ const Login = () => {
             navigate('/doctor-page');
             break;
           case 'admin':
-            navigate('/admin-page');
+            navigate('admin-dashboard');
             break;
           default:
             navigate('/');
@@ -180,7 +181,7 @@ const Login = () => {
   
 
   return (
-    <div className='mt-20 flex gap-3 items-center justify-center min-h-screen  from-blue-100 to-indigo-100'>
+    <div className='mt-20 flex gap-3 items-center justify-center min-h-screen  from-black-100 to-indigo-100'>
       
       <Card className="w-[500px] bg-white shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden">
         <CardHeader className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white p-6">

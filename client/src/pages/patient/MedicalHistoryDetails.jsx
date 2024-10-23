@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, NavLink } from 'react-router-dom';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Clock, FileAudio, List, AlertCircle } from 'lucide-react';
 
@@ -22,7 +21,7 @@ const MedicalHistoryDetails = () => {
       try {
         const response = await fetch(`http://localhost:5000/api/patient/medical-history/details/${id}`);
         console.log(response);
-        if (response.status!=200) {
+        if (response.status !== 200) {
           throw new Error('Failed to fetch history details');
         }
         const data = await response.json();
@@ -46,6 +45,40 @@ const MedicalHistoryDetails = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
+      {/* Navigation Section */}
+      <nav className="flex space-x-4 items-center p-4 bg-white-100 mb-6">
+        <NavLink
+          to="/"
+          className={({ isActive }) =>
+            isActive ? ' underline' : 'hover:underline text-gray-600'
+          }
+        >
+          Home
+        </NavLink>
+
+        {/* Arrow between links */}
+        <span className="text-gray-500">→</span>
+
+        <NavLink
+          to="/medical-history"
+          className={({ isActive }) =>
+            isActive ? '' : 'hover:underline text-gray-600'
+          }
+        >
+          History
+        </NavLink>
+        {/* Arrow between links */}
+        <span className="text-gray-500">→</span>
+
+        <NavLink
+          className={({ isActive }) =>
+            isActive ? 'font-bold underline' : 'hover:underline text-gray-600'
+          }
+        >
+          Medical History Details
+        </NavLink>
+      </nav>
+
       <h1 className="text-3xl font-bold mb-6">Medical History Details</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card>
@@ -95,15 +128,12 @@ const MedicalHistoryDetails = () => {
           </CardHeader>
           <CardContent>
             <audio controls className="w-full">
-              <source src={`http://localhost:5000/home/subhash/Documents/MediScribe/Data/${historyDetails.audioFilePath}`} type="audio/mpeg" /> 
-              {/* <source src={`http://localhost:5000/${historyDetails.audioFilePath}`} type="audio/mpeg" /> */}
+              <source src={`http://localhost:5000/${historyDetails.audioFilePath}`} type="audio/mpeg" />
               Your browser does not support the audio element.
             </audio>
           </CardContent>
         </Card>
       </div>
-
-      
     </div>
   );
 };

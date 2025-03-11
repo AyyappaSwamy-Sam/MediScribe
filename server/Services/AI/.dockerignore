@@ -1,0 +1,34 @@
+# Version control
+.git
+.gitignore
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+env
+venv
+*.log
+
+# Development
+.vscode
+.idea
+*.swp
+*.swo
+
+# Documentation
+docs/
+*.md
+README*
+
+# Test
+tests/
+test_*.py
+*_test.py
+
+# Temporary files
+*.bak
+*.tmp
+.DS_Store

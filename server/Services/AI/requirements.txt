@@ -1,0 +1,13 @@
+
+flask==3.0.3
+flask-cors==5.0.0
+dropbox==12.0.2
+python-dotenv==1.0.1
+openai-whisper
+python-dotenv
+transformers
+torch
+numpy
+pydub
+requests
+pymongo

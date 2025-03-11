@@ -1,0 +1,86 @@
+
+services:
+  # Define the service for the database
+  database:
+    build:
+      context: ./Services/Database/
+      dockerfile: Dockerfile
+    ports:
+      - "4999:4999"
+    environment:
+      - NODE_ENV=production
+      - MONGO_URI=${MONGO_URI}
+    networks:
+      - app-network
+    command: sh -c "npm start"
+    
+
+  authentication:
+    build:
+      context: ./Services/Authentication/
+      dockerfile: Dockerfile
+    ports:
+      - "5002:5002"
+    depends_on:
+      - database
+    environment:
+      - NODE_ENV=production
+      - MONGO_URI=${MONGO_URI}
+    networks:
+      - app-network
+    command: sh -c "./wait-for-it.sh database:4999 -- npm start"
+    
+
+  patient:
+    build:
+      context: ./Services/Patient/
+      dockerfile: Dockerfile
+    ports:
+      - "5004:5004"
+    depends_on:
+      - database
+    environment:
+      - NODE_ENV=production
+      - MONGO_URI=${MONGO_URI}
+    networks:
+      - app-network
+    command: sh -c "./wait-for-it.sh database:4999 -- npm start"
+    
+
+  doctor:
+    build:
+      context: ./Services/Doctor/
+      dockerfile: Dockerfile
+    ports:
+      - "5003:5003"
+    depends_on:
+      - database
+    environment:
+      - NODE_ENV=production
+      - MONGO_URI=${MONGO_URI}
+    networks:
+      - app-network
+    command: sh -c "./wait-for-it.sh database:4999 -- npm start"
+    
+
+  admin:
+    build:
+      context: ./Services/Admin/
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    depends_on:
+      - database
+    environment:
+      - NODE_ENV=production
+      - MONGO_URI=${MONGO_URI}
+    networks:
+      - app-network
+    command: sh -c "./wait-for-it.sh database:4999 -- npm start"
+    
+
+# # Define a shared network for services
+networks:
+  app-network:
+    driver: bridge
+

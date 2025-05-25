@@ -47,6 +47,7 @@ const DoctorNavbar = () => {
                 <NavItem to="/doctor-page/appointments">Appointments</NavItem>
                 <NavItem to="/contact">Contact</NavItem>
                 <NavItem to="/about">About Us</NavItem>
+                <NavItem to="/doctor-page/supportpage">Support</NavItem>
               </ul>
               
               <div className="flex items-center">

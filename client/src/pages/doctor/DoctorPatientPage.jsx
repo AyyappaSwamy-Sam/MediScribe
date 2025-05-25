@@ -399,8 +399,8 @@
 
 
 
-import React, { useState, useRef, useEffect } from 'react';
-import { Upload, Mic, CheckCircle, AlertCircle, Play, Ban as Stop, Send, User, Clock, Calendar, ChevronDown, ChevronUp } from 'lucide-react';
+import  { useState, useRef, useEffect } from 'react';
+import { Upload, Mic, CheckCircle, AlertCircle, Play, Ban as Stop, Send, User, Edit, Save, Calendar, ChevronDown, ChevronUp } from 'lucide-react';
 import { useParams } from 'react-router-dom';
 
 const AudioRecorder = () => {
@@ -416,7 +416,31 @@ const AudioRecorder = () => {
   const [summary, setSummary] = useState('');
   const [speakerCount, setSpeakerCount] = useState(0);
   const [structuredOutput, setStructure] = useState('');
+
   
+ const [ehrData, setEhrData] = useState({
+    Chief_Complaint: "",
+    Symptoms: "",
+    Physical_Examination: "",
+    Diagnosis: "",
+    Medications: "",
+    Treatment_Plan: "",
+    Lifestyle_Modifications: {
+      Diet: {
+        Recommended: "",
+        Restricted: ""
+      },
+      Exercise: "",
+      Other_Recommendations: ""
+    },
+    Follow_up: {
+      Timing: "",
+      Special_Instructions: ""
+    },
+    Additional_Notes: ""
+  });
+  
+  const [isEditing, setIsEditing] = useState(false); 
   // New states for patient info
   const [patientDetails, setPatientDetails] = useState(null);
   const [patientHistory, setPatientHistory] = useState([]);
@@ -432,6 +456,21 @@ const AudioRecorder = () => {
   }, [appointmentId]);
 
   console.log(appointmentId)
+
+  useEffect(() => {
+    if (structuredOutput) {
+      try {
+        // If structuredOutput is a string, parse it to JSON
+        const parsedData = typeof structuredOutput === 'string' 
+          ? JSON.parse(structuredOutput) 
+          : structuredOutput;
+        
+        setEhrData(parsedData);
+      } catch (error) {
+        console.error("Error parsing structured output:", error);
+      }
+    }
+  }, [structuredOutput]);
 
  
   const fileInputRef = useRef(null);
@@ -502,7 +541,7 @@ const AudioRecorder = () => {
       setStatus('recording');
       setErrorMessage('');
     } catch (err) {
-      setErrorMessage('Error accessing microphone. Please ensure microphone permissions are granted.');
+      setErrorMessage('Error accessing microphone. Please ensure microphone permissions are granted.',err);
       setStatus('error');
     }
   };
@@ -558,7 +597,8 @@ const AudioRecorder = () => {
     formData.append('appointmentId', appointmentId);
     formData.append('transcript', transcript);
     formData.append('summary', summary);
-    formData.append('structuredOutput',structuredOutput);
+    // formData.append('structuredOutput',structuredOutput);
+    formData.append('structuredOutput', JSON.stringify(ehrData));
 
     setStatus('uploading');
     try {
@@ -578,6 +618,27 @@ const AudioRecorder = () => {
       setAudioUrl('');
       setTranscript('');
       setSummary('');
+      setEhrData({
+        Chief_Complaint: "",
+        Symptoms: "",
+        Physical_Examination: "",
+        Diagnosis: "",
+        Medications: "",
+        Treatment_Plan: "",
+        Lifestyle_Modifications: {
+          Diet: {
+            Recommended: "",
+            Restricted: ""
+          },
+          Exercise: "",
+          Other_Recommendations: ""
+        },
+        Follow_up: {
+          Timing: "",
+          Special_Instructions: ""
+        },
+        Additional_Notes: ""
+      });
     } catch (err) {
       setErrorMessage(err.message || 'Error saving to Dropbox');
       setStatus('error');
@@ -607,7 +668,7 @@ const AudioRecorder = () => {
         setErrorMessage('Invalid patient data format');
       }
     } catch (err) {
-      setErrorMessage('Error fetching patient details');
+      setErrorMessage('Error fetching patient details', err);
     }
   };
 
@@ -636,8 +697,286 @@ const AudioRecorder = () => {
         setPatientHistory([]);  // Fallback to empty array if records not found
       }
     } catch (err) {
-      setErrorMessage('Error fetching patient history');
+      setErrorMessage('Error fetching patient history', err);
     }
+  };
+
+  const handleEhrChange = (field, value) => {
+    setEhrData(prev => {
+      // Handle nested fields
+      if (field.includes('.')) {
+        const [parent, child, grandchild] = field.split('.');
+        if (grandchild) {
+          return {
+            ...prev,
+            [parent]: {
+              ...prev[parent],
+              [child]: {
+                ...prev[parent][child],
+                [grandchild]: value
+              }
+            }
+          };
+        } else {
+          return {
+            ...prev,
+            [parent]: {
+              ...prev[parent],
+              [child]: value
+            }
+          };
+        }
+      } else {
+        // Handle top-level fields
+        return {
+          ...prev,
+          [field]: value
+        };
+      }
+    });
+  };
+
+  // Toggle edit mode for EHR template
+  const toggleEditMode = () => {
+    setIsEditing(!isEditing);
+  };
+
+  const renderEhrTemplate = () => {
+    return (
+      <div className="bg-white rounded-xl shadow-lg p-6">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-xl font-semibold">Electronic Health Record</h3>
+          <button
+            onClick={toggleEditMode}
+            className="flex items-center space-x-1 text-blue-600 hover:text-blue-800"
+          >
+            {isEditing ? (
+              <>
+                <Save className="h-4 w-4" />
+                <span>Save</span>
+              </>
+            ) : (
+              <>
+                <Edit className="h-4 w-4" />
+                <span>Edit</span>
+              </>
+            )}
+          </button>
+        </div>
+        
+        <div className="grid grid-cols-1 gap-4">
+          {/* Chief Complaint */}
+          <div className="border rounded-lg p-4">
+            <label className="block text-sm font-medium text-gray-700 mb-1">Chief Complaint</label>
+            {isEditing ? (
+              <textarea
+                className="w-full p-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
+                value={ehrData.Chief_Complaint || ''}
+                onChange={(e) => handleEhrChange('Chief_Complaint', e.target.value)}
+                rows="2"
+              />
+            ) : (
+              <p className="text-gray-800">{ehrData.Chief_Complaint || 'Not available'}</p>
+            )}
+          </div>
+          
+          {/* Symptoms */}
+          <div className="border rounded-lg p-4">
+            <label className="block text-sm font-medium text-gray-700 mb-1">Symptoms</label>
+            {isEditing ? (
+              <textarea
+                className="w-full p-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
+                value={ehrData.Symptoms || ''}
+                onChange={(e) => handleEhrChange('Symptoms', e.target.value)}
+                rows="3"
+              />
+            ) : (
+              <p className="text-gray-800">{ehrData.Symptoms || 'Not available'}</p>
+            )}
+          </div>
+          
+          {/* Physical Examination */}
+          <div className="border rounded-lg p-4">
+            <label className="block text-sm font-medium text-gray-700 mb-1">Physical Examination</label>
+            {isEditing ? (
+              <textarea
+                className="w-full p-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
+                value={ehrData.Physical_Examination || ''}
+                onChange={(e) => handleEhrChange('Physical_Examination', e.target.value)}
+                rows="3"
+              />
+            ) : (
+              <p className="text-gray-800">{ehrData.Physical_Examination || 'Not available'}</p>
+            )}
+          </div>
+          
+          {/* Diagnosis */}
+          <div className="border rounded-lg p-4">
+            <label className="block text-sm font-medium text-gray-700 mb-1">Diagnosis</label>
+            {isEditing ? (
+              <textarea
+                className="w-full p-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
+                value={ehrData.Diagnosis || ''}
+                onChange={(e) => handleEhrChange('Diagnosis', e.target.value)}
+                rows="2"
+              />
+            ) : (
+              <p className="text-gray-800">{ehrData.Diagnosis || 'Not available'}</p>
+            )}
+          </div>
+          
+          {/* Medications */}
+          <div className="border rounded-lg p-4">
+            <label className="block text-sm font-medium text-gray-700 mb-1">Medications</label>
+            {isEditing ? (
+              <textarea
+                className="w-full p-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
+                value={ehrData.Medications || ''}
+                onChange={(e) => handleEhrChange('Medications', e.target.value)}
+                rows="3"
+              />
+            ) : (
+              <p className="text-gray-800">{ehrData.Medications || 'Not available'}</p>
+            )}
+          </div>
+          
+          {/* Treatment Plan */}
+          <div className="border rounded-lg p-4">
+            <label className="block text-sm font-medium text-gray-700 mb-1">Treatment Plan</label>
+            {isEditing ? (
+              <textarea
+                className="w-full p-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
+                value={ehrData.Treatment_Plan || ''}
+                onChange={(e) => handleEhrChange('Treatment_Plan', e.target.value)}
+                rows="3"
+              />
+            ) : (
+              <p className="text-gray-800">{ehrData.Treatment_Plan || 'Not available'}</p>
+            )}
+          </div>
+          
+          {/* Lifestyle Modifications */}
+          <div className="border rounded-lg p-4">
+            <h4 className="font-medium text-gray-800 mb-2">Lifestyle Modifications</h4>
+            
+            <div className="ml-2 space-y-3">
+              {/* Diet */}
+              <div>
+                <h5 className="text-sm font-medium text-gray-700">Diet</h5>
+                <div className="ml-2 mt-1 space-y-2">
+                  <div>
+                    <label className="block text-xs text-gray-500">Recommended</label>
+                    {isEditing ? (
+                      <input
+                        type="text"
+                        className="w-full p-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
+                        value={ehrData.Lifestyle_Modifications?.Diet?.Recommended || ''}
+                        onChange={(e) => handleEhrChange('Lifestyle_Modifications.Diet.Recommended', e.target.value)}
+                      />
+                    ) : (
+                      <p className="text-gray-800">{ehrData.Lifestyle_Modifications?.Diet?.Recommended || 'Not available'}</p>
+                    )}
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-500">Restricted</label>
+                    {isEditing ? (
+                      <input
+                        type="text"
+                        className="w-full p-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
+                        value={ehrData.Lifestyle_Modifications?.Diet?.Restricted || ''}
+                        onChange={(e) => handleEhrChange('Lifestyle_Modifications.Diet.Restricted', e.target.value)}
+                      />
+                    ) : (
+                      <p className="text-gray-800">{ehrData.Lifestyle_Modifications?.Diet?.Restricted || 'Not available'}</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+              
+              {/* Exercise */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Exercise</label>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    className="w-full p-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
+                    value={ehrData.Lifestyle_Modifications?.Exercise || ''}
+                    onChange={(e) => handleEhrChange('Lifestyle_Modifications.Exercise', e.target.value)}
+                  />
+                ) : (
+                  <p className="text-gray-800">{ehrData.Lifestyle_Modifications?.Exercise || 'Not available'}</p>
+                )}
+              </div>
+              
+              {/* Other Recommendations */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Other Recommendations</label>
+                {isEditing ? (
+                  <textarea
+                    className="w-full p-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
+                    value={ehrData.Lifestyle_Modifications?.Other_Recommendations || ''}
+                    onChange={(e) => handleEhrChange('Lifestyle_Modifications.Other_Recommendations', e.target.value)}
+                    rows="2"
+                  />
+                ) : (
+                  <p className="text-gray-800">{ehrData.Lifestyle_Modifications?.Other_Recommendations || 'Not available'}</p>
+                )}
+              </div>
+            </div>
+          </div>
+          
+          {/* Follow-up */}
+          <div className="border rounded-lg p-4">
+            <h4 className="font-medium text-gray-800 mb-2">Follow-up</h4>
+            
+            <div className="ml-2 space-y-3">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Timing</label>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    className="w-full p-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
+                    value={ehrData.Follow_up?.Timing || ''}
+                    onChange={(e) => handleEhrChange('Follow_up.Timing', e.target.value)}
+                  />
+                ) : (
+                  <p className="text-gray-800">{ehrData.Follow_up?.Timing || 'Not available'}</p>
+                )}
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Special Instructions</label>
+                {isEditing ? (
+                  <textarea
+                    className="w-full p-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
+                    value={ehrData.Follow_up?.Special_Instructions || ''}
+                    onChange={(e) => handleEhrChange('Follow_up.Special_Instructions', e.target.value)}
+                    rows="2"
+                  />
+                ) : (
+                  <p className="text-gray-800">{ehrData.Follow_up?.Special_Instructions || 'Not available'}</p>
+                )}
+              </div>
+            </div>
+          </div>
+          
+          {/* Additional Notes */}
+          <div className="border rounded-lg p-4">
+            <label className="block text-sm font-medium text-gray-700 mb-1">Additional Notes</label>
+            {isEditing ? (
+              <textarea
+                className="w-full p-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
+                value={ehrData.Additional_Notes || ''}
+                onChange={(e) => handleEhrChange('Additional_Notes', e.target.value)}
+                rows="3"
+              />
+            ) : (
+              <p className="text-gray-800">{ehrData.Additional_Notes || 'Not available'}</p>
+            )}
+          </div>
+        </div>
+      </div>
+    );
   };
 
   // Keep all existing audio recording functions
@@ -826,6 +1165,35 @@ const AudioRecorder = () => {
           </div>
           
         )}
+
+        {/* EHR Template Section */}
+        {transcript && (
+          <div className="grid md:grid-cols-2 gap-6">
+            <div className="bg-white rounded-xl shadow-lg p-6">
+              <h3 className="text-xl font-semibold mb-4">Structured Output</h3>
+              <div className="h-64 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                <div className="prose max-w-none p-4">
+                  <pre className="whitespace-pre-wrap text-sm text-gray-700">{
+                    typeof structuredOutput === 'string' ? structuredOutput : JSON.stringify(structuredOutput, null, 2)
+                  }</pre>
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-xl shadow-lg p-6">
+              <h3 className="text-xl font-semibold mb-2 text-white">Speaker Count</h3>
+              <div className="bg-white bg-opacity-20 backdrop-blur-sm rounded-lg p-4 flex items-center justify-center">
+                <div className="flex items-center space-x-2">
+                  <h3 className="text-lg">Number Of Speakers:</h3>
+                  <span className="text-3xl font-bold ml-2">{speakerCount}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {/* EHR Template */}
+        {transcript && renderEhrTemplate()}
 
         {/* Patient History Section */}
         <div className="bg-white rounded-xl shadow-lg p-6">

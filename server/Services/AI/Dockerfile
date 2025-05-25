@@ -5,7 +5,7 @@ FROM python:3.9-slim
 WORKDIR /app
 
 # Copy the current directory contents into the container at /app
-COPY . /app
+COPY requirements.txt .
 
 
 RUN apt-get update && apt-get install -y ffmpeg
@@ -14,11 +14,14 @@ RUN apt-get update && apt-get install -y ffmpeg
 RUN pip install --no-cache-dir -r requirements.txt
 
 
+COPY . .
+
 # Make port 5006 available to the world outside this container
 EXPOSE 5006
 
 # Define environment variable
-ENV FLASK_APP=app.py
 
 # Run app.py when the container launches
-CMD ["flask", "run", "--host=0.0.0.0", "--port=5006"]
+CMD ["python3", "src/app1.py"]
+
+# CMD ["python3", "v1/run.py"]

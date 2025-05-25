@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { Route, Routes } from 'react-router-dom';
 import "@fontsource/manrope";
 import './App.css';
@@ -31,6 +31,7 @@ import AdminAddSpecality from './pages/Admin/AdminAddSpecality';
 import AdminGeneralSettings from './pages/Admin/AdminGeneralSettings';
 import AdminSecurity from './pages/Admin/AdminSecurity';
 import AdminUserActivity from './pages/Admin/AdminUserActivity';
+import SupportPage from './pages/doctor/SupportPage';
 // Admin components
 
 function AppContent() {
@@ -52,7 +53,9 @@ function AppContent() {
             <Route path='/my-profile' element={<DoctorProfilePage />} />
             <Route path='/doctor-page/appointments' element={<DoctorAppointmentsPage />} />
             <Route path='/doctor-page/appointments/:appointmentId' element={<DoctorPatientPage />} />
+            <Route path='/doctor-page/supportpage' element={<SupportPage />} />
           </Route>
+
         ) : null}
 
         {user === 'patient' ? (
